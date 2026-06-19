@@ -75,6 +75,21 @@ jobs:
 
       - run: npm ci
 
+      - name: Install Playwright system dependencies
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          playwright_version="$(npm view @playwright/cli@latest dependencies.playwright --json | tr -d '"')"
+          if [[ -z "$playwright_version" || "$playwright_version" == "null" ]]; then
+            playwright_version="$(npm view playwright@latest version --json | tr -d '"')"
+          fi
+          if [[ "${{ matrix.profile }}" == "chromium-full" ]]; then
+            npx --yes "playwright@${playwright_version}" install-deps chromium
+          else
+            npx --yes "playwright@${playwright_version}" install-deps
+          fi
+
       - name: Build SDK archive
         run: npm run build -- --target "${{ matrix.target }}" --profile "${{ matrix.profile }}" --package-version "${{ needs.package-version.outputs.package_version }}"
 

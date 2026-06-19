@@ -1,4 +1,4 @@
-import tar from 'tar';
+import * as tar from 'tar';
 import { join } from 'node:path';
 import { ensureDir, fileSize, getContext, readJson, sha256File, writeJson } from './common.mjs';
 
@@ -36,4 +36,3 @@ await import('node:fs/promises').then(({ writeFile }) => writeFile(shaPath, `${s
 
 console.log(`Packed ${ctx.archiveName}`);
 console.log(`sha256 ${sha256}`);
-
