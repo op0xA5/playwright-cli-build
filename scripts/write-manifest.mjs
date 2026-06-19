@@ -51,8 +51,8 @@ const manifest = {
   },
   commands: {
     playwright_cli: 'bin/playwright-cli',
-    playwright: 'libexec/playwright',
-    playwright_alias: 'bin/playwright'
+    playwright: 'bin/playwright',
+    playwright_libexec: 'libexec/playwright'
   },
   env: [
     'PLAYWRIGHT_BROWSERS_PATH={root}/ms-playwright',

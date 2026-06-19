@@ -13,6 +13,7 @@ const ctx = getContext();
 const lock = await readJson(ctx.lockPath);
 const verification = {
   playwright_cli_version_output: null,
+  playwright_bin_version_output: null,
   playwright_version_output: null,
   node_version_output: null,
   playwright_help: 'not-run',
@@ -63,10 +64,18 @@ verification.playwright_cli_version_output = (await run(join(ctx.packageRoot, 'b
   capture: true,
   env
 })).stdout.trim();
+verification.playwright_bin_version_output = (await run(join(ctx.packageRoot, 'bin', 'playwright'), ['--version'], {
+  capture: true,
+  env
+})).stdout.trim();
 verification.playwright_version_output = (await run(join(ctx.packageRoot, 'libexec', 'playwright'), ['--version'], {
   capture: true,
   env
 })).stdout.trim();
+assert(
+  verification.playwright_bin_version_output === verification.playwright_version_output,
+  `bin/playwright version mismatch: ${verification.playwright_bin_version_output} !== ${verification.playwright_version_output}`
+);
 verification.node_version_output = (await run(join(ctx.packageRoot, 'node', 'bin', 'node'), ['--version'], {
   capture: true
 })).stdout.trim();

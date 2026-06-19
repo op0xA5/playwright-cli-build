@@ -1,4 +1,4 @@
-import { chmod, copyFile, writeFile } from 'node:fs/promises';
+import { chmod, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ensureDir, getContext } from './common.mjs';
 
@@ -31,10 +31,9 @@ const playwrightCli = join(binDir, 'playwright-cli');
 await writeFile(playwrightCli, playwrightCliWrapper, 'utf8');
 await chmod(playwrightCli, 0o755);
 
-for (const destination of [join(binDir, 'playwright')]) {
-  await copyFile(playwrightCli, destination);
-  await chmod(destination, 0o755);
-}
+const playwright = join(binDir, 'playwright');
+await writeFile(playwright, playwrightWrapper, 'utf8');
+await chmod(playwright, 0o755);
 
 const diagnosticPlaywright = join(libexecDir, 'playwright');
 await writeFile(diagnosticPlaywright, playwrightWrapper, 'utf8');

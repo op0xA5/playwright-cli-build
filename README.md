@@ -31,6 +31,10 @@ Supported profiles:
 
 Build output is written to `dist/`.
 
+Each `.tar.gz` extracts directly to the SDK root layout, with entries such as
+`bin/`, `libexec/`, `node/`, `node_modules/`, `ms-playwright/`, `skills/`, and
+`manifest.json` at archive root.
+
 `manifest.json` is included inside each archive. The final archive checksum is
 written to `dist/*.tar.gz.sha256`, `dist/*.tar.gz.manifest.json`, and the
 aggregate `release-manifest.json`, because a tarball cannot truthfully contain
@@ -44,3 +48,7 @@ archives as workflow artifacts.
 
 Set `publish_release` to `true` to create a GitHub Release containing all
 archives and an aggregate `release-manifest.json`.
+
+GitHub's workflow artifact UI downloads artifacts as zip files. Published
+GitHub Releases contain the raw `.tar.gz` archives without that artifact zip
+wrapper.
