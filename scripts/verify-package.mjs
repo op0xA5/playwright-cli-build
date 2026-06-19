@@ -37,6 +37,7 @@ await assertExists(join(ctx.packageRoot, 'bin', 'playwright'));
 await assertExists(join(ctx.packageRoot, 'libexec', 'playwright'));
 await assertExists(join(ctx.packageRoot, 'node', 'bin', 'node'));
 await assertExists(join(ctx.packageRoot, 'node_modules', '@playwright', 'cli', 'playwright-cli.js'));
+await assertExists(join(ctx.packageRoot, 'node_modules', 'playwright', 'cli.js'));
 await assertExists(join(ctx.packageRoot, 'node_modules', 'playwright-core', 'browsers.json'));
 await assertExists(join(ctx.packageRoot, 'skills', 'playwright-cli', 'SKILL.md'));
 
@@ -84,7 +85,7 @@ if (ctx.target.startsWith('linux-')) {
   const args = ctx.profile === 'chromium-full'
     ? ['install-deps', '--dry-run', 'chromium']
     : ['install-deps', '--dry-run'];
-  const result = await run(join(ctx.packageRoot, 'bin', 'playwright-cli'), args, {
+  const result = await run(join(ctx.packageRoot, 'libexec', 'playwright'), args, {
     capture: true,
     env
   });
@@ -127,4 +128,3 @@ if (ctx.profile === 'all-browsers') {
 
 await writeJson(ctx.verificationPath, verification);
 console.log('Package verification passed');
-

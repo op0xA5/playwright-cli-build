@@ -30,8 +30,9 @@ await run('npm', [
   }
 });
 
-const cliScript = join(ctx.packageRoot, 'node_modules', '@playwright', 'cli', 'playwright-cli.js');
-await run(process.execPath, [cliScript, ...installBrowserArgs(ctx.profile)], {
+const runtimeNode = join(ctx.packageRoot, 'node', 'bin', 'node');
+const cliScript = join(ctx.packageRoot, 'node_modules', 'playwright', 'cli.js');
+await run(runtimeNode, [cliScript, ...installBrowserArgs(ctx.profile)], {
   cwd: ctx.packageRoot,
   env: {
     PLAYWRIGHT_BROWSERS_PATH: join(ctx.packageRoot, 'ms-playwright'),

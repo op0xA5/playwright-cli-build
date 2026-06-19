@@ -51,8 +51,8 @@ const manifest = {
   },
   commands: {
     playwright_cli: 'bin/playwright-cli',
-    playwright: 'bin/playwright',
-    playwright_libexec: 'libexec/playwright'
+    playwright: 'libexec/playwright',
+    playwright_alias: 'bin/playwright'
   },
   env: [
     'PLAYWRIGHT_BROWSERS_PATH={root}/ms-playwright',
@@ -90,4 +90,3 @@ const manifest = {
 
 await writeJson(join(ctx.packageRoot, 'manifest.json'), manifest);
 console.log('Wrote package manifest');
-
