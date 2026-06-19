@@ -1,0 +1,122 @@
+name: Build Playwright CLI SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sequence:
+        description: Sequence number for today's YYYYMMDD.N package version
+        required: false
+        default: ''
+      package_version:
+        description: Optional explicit package version, for example 20260619.1
+        required: false
+        default: ''
+      publish_release:
+        description: Publish a GitHub Release after all packages build
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  package-version:
+    runs-on: ubuntu-latest
+    outputs:
+      package_version: ${{ steps.version.outputs.package_version }}
+    steps:
+      - id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${{ inputs.package_version }}" ]]; then
+            package_version="${{ inputs.package_version }}"
+          else
+            sequence="${{ inputs.release_sequence }}"
+            if [[ -z "$sequence" ]]; then
+              sequence="${{ github.run_number }}"
+            fi
+            package_version="$(date -u +%Y%m%d).${sequence}"
+          fi
+          if [[ ! "$package_version" =~ ^[0-9]{8}\.[0-9]+$ ]]; then
+            echo "Invalid package version: $package_version" >&2
+            exit 1
+          fi
+          echo "package_version=$package_version" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: package-version
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - linux-x64
+          - linux-arm64
+          - darwin-arm64
+        profile:
+          - chromium-full
+          - all-browsers
+        include:
+          - target: linux-x64
+            runner: ubuntu-latest
+          - target: linux-arm64
+            runner: ubuntu-24.04-arm
+          - target: darwin-arm64
+            runner: macos-latest
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build SDK archive
+        run: npm run build -- --target "${{ matrix.target }}" --profile "${{ matrix.profile }}" --package-version "${{ needs.package-version.outputs.package_version }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: playwright-cli-sdk-${{ needs.package-version.outputs.package_version }}-${{ matrix.profile }}-${{ matrix.target }}
+          path: |
+            dist/*.tar.gz
+            dist/*.tar.gz.sha256
+            dist/*.tar.gz.manifest.json
+          if-no-files-found: error
+
+  release:
+    needs:
+      - package-version
+      - build
+    if: ${{ inputs.publish_release }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Write release manifest
+        run: npm run release-manifest -- --package-version "${{ needs.package-version.outputs.package_version }}"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: playwright-cli-sdk-${{ needs.package-version.outputs.package_version }}
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" dist/* \
+            --title "$TAG" \
+            --notes "Playwright CLI SDK package ${{ needs.package-version.outputs.package_version }}"

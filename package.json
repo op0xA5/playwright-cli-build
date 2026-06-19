@@ -1,0 +1,25 @@
+{
+  "name": "playwright-cli-sdk-dist",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "resolve": "node scripts/resolve-versions.mjs",
+    "download-node": "node scripts/download-node.mjs",
+    "install-playwright": "node scripts/install-playwright.mjs",
+    "collect-skills": "node scripts/collect-skills.mjs",
+    "create-wrappers": "node scripts/create-wrappers.mjs",
+    "verify-package": "node scripts/verify-package.mjs",
+    "write-manifest": "node scripts/write-manifest.mjs",
+    "pack": "node scripts/pack.mjs",
+    "release-manifest": "node scripts/write-release-manifest.mjs"
+  },
+  "devDependencies": {
+    "tar": "^7.4.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
+
